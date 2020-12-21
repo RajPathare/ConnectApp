@@ -99,8 +99,47 @@ router.post('/', [auth, [
         console.log(e.message);
         res.status(500).send('Server error!');
     }
+});
+
+// route - GET api/profile
+// Get all profiles
+// access value - public
+
+router.get('/', async (req,res)=> {
+    try {
+        const profiles = await Profile.find({}).populate('user', ['name','avatar']);
+        res.json(profiles);
+    }
+    catch (e) {
+        console.log(e.message);
+        res.status(500).send('Server error!');
+    }
+})
 
 
+// route - GET api/profile/user/:user_id
+// Get profile by userId
+// access value - public
+
+router.get('/user/:user_id', async (req,res)=> {
+    try {
+        const profile = await Profile.findOne({ user: req.params.user_id }).populate('user', ['name','avatar']);
+        
+        if(!profile) {
+            return res.status(400).json({ msg: 'Profile not found!'});
+        }
+
+        res.json(profile);
+    }
+    catch (e) {
+        console.log(e.message);
+
+        // if someone enters a random userId which is not an ObjectId
+        if(e.kind == 'ObjectId') {
+            return res.status(400).json({ msg: 'Profile not found!'});
+        }
+        res.status(500).send('Server error!');
+    }
 })
 
 
