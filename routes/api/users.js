@@ -44,6 +44,7 @@ router.post('/', [
             d: 'mm' // default image if the user does not have a gravatar account
         });
 
+        // when creating a new resource inside mongo, always instantiate the object first (new)
         user = new User({
             name,
             email,
