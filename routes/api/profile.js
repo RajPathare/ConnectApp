@@ -4,6 +4,7 @@ const auth = require('../../middleware/auth');
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
 const { check, validationResult } = require('express-validator/check');
+const request = require('request');
 
 // route - GET api/profile/me (get just 1 profile)
 // Get current users profile
@@ -249,5 +250,130 @@ router.delete('/experience/:exp_id',auth, async (req,res)=>{
         res.status(500).send('Server error!');
     }
 })
+
+
+// route - PUT api/profile/education (this can also be made a POST req), we use PUT since we are updating part of a profile
+// Add profile education
+// access value - private
+
+router.put('/education', [auth, [
+    check('school', 'School is required').not().isEmpty(),
+    check('degree', 'Degree is required').not().isEmpty(),
+    check('fieldofstudy', 'Field of study is required').not().isEmpty(),
+    check('from', 'From date is required').not().isEmpty()
+]], async (req,res)=>{
+    const errors = validationResult(req);
+    if(!errors.isEmpty) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const {
+
+        school,
+        degree,
+        fieldofstudy,
+        from,
+        to,
+        current,
+        description
+
+    } = req.body
+
+    const newEdu = {
+
+        school: school,
+        degree: degree,
+        fieldofstudy: fieldofstudy,
+        from: from,
+        to: to,
+        current: current,
+        description: description
+
+    }
+
+    try {
+        const profile = await Profile.findOne({ user: req.user.id });
+
+        // education is an array (check Profile model). You can also use .push() here but unshift always adds the value first and push adds it last
+        // this is done because we need to add recent education in the top.
+        profile.education.unshift(newEdu);
+
+        await profile.save();
+
+        res.json(profile);
+
+    }
+    catch (e) {
+        console.log(e.message);
+        res.status(500).send('Server error!');
+    }
+
+});
+
+// route - DELETE api/profile/education/:edu_id
+// delete a education from profile
+// access value - private
+
+router.delete('/education/:edu_id',auth, async (req,res)=>{
+
+    try {
+
+        const profile = await Profile.findOne({ user: req.user.id });
+
+        // we will map through the education array and find the education id that we need to remove
+        const removeIndex = profile.education.map((item)=> item.id).indexOf(req.params.edu_id);
+
+        // splice removes the item from the array (1 -> number of items to be removed)
+        profile.education.splice(removeIndex, 1);
+
+        await profile.save();
+
+        res.json(profile);
+
+    }
+    catch (e) {
+        console.log(e.message);
+        res.status(500).send('Server error!');
+    }
+});
+
+
+// route - GET api/profile/github/:username
+// get user repos from github
+// access value - public
+
+router.get('/github/:username', async (req,res)=>{
+    try {
+
+        const clientId = process.env.githubClientId;
+        const clientSecret = process.env.githubSecret;
+
+        const options = {
+            uri: `https://api.github.com/users/${req.params.username}/repos?per_page=5&sort=created:asc&client_id=${clientId}&client_secret=${clientSecret}`,
+            method: 'GET',
+            headers: {'user-agent': 'node.js'}
+        };
+
+        request(options, (err,response,body) =>{
+            if(err) {
+                console.log(err);
+            }
+
+            if(response.statusCode !== 200) {
+                return res.status(404).json({ msg: 'No github profile found'});
+            }
+
+            res.json(JSON.parse(body));
+
+        })
+
+    }
+    catch (e) {
+        console.log(e.message);
+        res.status(500).send('Server error!');
+    }
+})
+
+
 
 module.exports = router;
