@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { setAlert } from '../../actions/alert';
+import { register } from '../../actions/auth';
 import PropTypes from 'prop-types';
 
 // we're using functional components here so we'll be using hooks
@@ -30,7 +31,8 @@ const Register = (props) => {
             props.setAlert('Passwords do not match!', 'danger')
         }
         else {
-            console.log(formData);
+            // console.log(formData);
+            props.register({ name, email, password });
         }
     }
 
@@ -40,10 +42,10 @@ const Register = (props) => {
         <p className="lead"><i className="fas fa-user"></i> Create Your Account</p>
       <form className="form" onSubmit={(e)=> onSubmit(e)}>
         <div className="form-group">
-          <input type="text" placeholder="Name" name="name" value={name} onChange={(e)=> onInputChange(e)} required />
+          <input type="text" placeholder="Name" name="name" value={name} onChange={(e)=> onInputChange(e)} />
         </div>
         <div className="form-group">
-          <input type="email" placeholder="Email Address" name="email" value={email} onChange={(e)=> onInputChange(e)} required />
+          <input type="email" placeholder="Email Address" name="email" value={email} onChange={(e)=> onInputChange(e)} />
           <small className="form-text"
             >This site uses Gravatar so if you want a profile image, use a
             Gravatar email</small
@@ -55,7 +57,7 @@ const Register = (props) => {
             placeholder="Password"
             name="password"
             value={password} onChange={(e)=> onInputChange(e)}
-            minLength="6"
+         
           />
         </div>
         <div className="form-group">
@@ -64,7 +66,7 @@ const Register = (props) => {
             placeholder="Confirm Password"
             name="password2"
             value={password2} onChange={(e)=> onInputChange(e)}
-            minLength="6"
+         
           />
         </div>
         <input type="submit" className="btn btn-primary" value="Register" />
@@ -79,8 +81,10 @@ const Register = (props) => {
 Register.propTypes = {
   // check the type of props
   setAlert: PropTypes.func.isRequired,
+  register: PropTypes.func.isRequired
 }
 
 export default connect(null, {
-  setAlert
+  setAlert,
+  register
 })(Register);
