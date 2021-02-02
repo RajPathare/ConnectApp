@@ -34,8 +34,6 @@ const EditProfile = ({
     useEffect(() => {
         getCurrentProfile();
 
-        console.log(profile.social.linkedin);
-
         setFormData({
             company: loading || !profile.company ? '' :  profile.company,
             website: loading || !profile.website ? '' :  profile.website,
