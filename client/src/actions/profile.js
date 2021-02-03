@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { setAlert } from './alert';
 
-import { GET_PROFILE, PROFILE_ERROR, UPDATE_PROFILE, CLEAR_PROFILE, ACCOUNT_DELETED  } from './types';
+import { GET_PROFILE, PROFILE_ERROR, UPDATE_PROFILE, CLEAR_PROFILE, ACCOUNT_DELETED, GET_PROFILES, GET_REPOS  } from './types';
 
 // Get current users profile
 export const getCurrentProfile = () => {
@@ -19,6 +19,64 @@ export const getCurrentProfile = () => {
     }
 
 }
+
+
+// Get all profiles
+
+export const getAllProfiles = () => {
+    return async (dispatch) => {
+
+        // when we see all users profiles and when we click on some profile, we should clear up the existing users profile (which was there previously)
+        // when we visit someone's profile, we will append the profile to the profile state, so we need to clear our current profile once we visit all profiles
+        dispatch({ type: CLEAR_PROFILE });
+
+        try {
+            const res = await axios.get('/api/profile');
+
+            dispatch({ type: GET_PROFILES, payload: res.data });
+        }
+        catch (err) {
+            dispatch({ type: PROFILE_ERROR, payload: { msg: err.response.statusText, status: err.response.status } })
+        }
+    }
+
+}
+
+
+// Get profile by users ID
+
+export const getProfileById = (userId) => {
+    return async (dispatch) => {
+
+        try {
+            const res = await axios.get(`/api/profile/${userId}`);
+
+            dispatch({ type: GET_PROFILE, payload: res.data });
+        }
+        catch (err) {
+            dispatch({ type: PROFILE_ERROR, payload: { msg: err.response.statusText, status: err.response.status } })
+        }
+    }
+
+}
+
+// Get github repos
+
+export const getGithubRepos = (username) => {
+    return async (dispatch) => {
+
+        try {
+            const res = await axios.get(`/api/profile/github/${username}`);
+
+            dispatch({ type: GET_REPOS, payload: res.data });
+        }
+        catch (err) {
+            dispatch({ type: PROFILE_ERROR, payload: { msg: err.response.statusText, status: err.response.status } })
+        }
+    }
+
+}
+
 
 // Create or update a profile
 

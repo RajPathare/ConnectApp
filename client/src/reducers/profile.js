@@ -1,5 +1,5 @@
 
-import { GET_PROFILE, PROFILE_ERROR, CLEAR_PROFILE, UPDATE_PROFILE, ACCOUNT_DELETED } from '../actions/types';
+import { GET_PROFILE, PROFILE_ERROR, CLEAR_PROFILE, UPDATE_PROFILE, GET_PROFILES, GET_REPOS } from '../actions/types';
 
 const initialState = {
     profile: null, // current profile for the user + any profile the user vists
@@ -18,7 +18,11 @@ export default (state = initialState, action) => {
         case CLEAR_PROFILE: 
             return {...state, profile: null, repos: [], loading: false};
         case UPDATE_PROFILE:
-            return {...state, profile: action.payload, loading: false };
+            return {...state, profile: action.payload, loading: false};
+        case GET_PROFILES:
+            return {...state, profiles: action.payload, loading: false};
+        case GET_REPOS:
+            return {...state, repos: action.payload, loading: false};
         default:
             return state;
     }
