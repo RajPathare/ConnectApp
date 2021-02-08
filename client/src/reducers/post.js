@@ -1,5 +1,5 @@
 
-import { GET_POSTS, POST_ERROR, UPDATE_LIKES, DELETE_POST } from '../actions/types';
+import { GET_POSTS, POST_ERROR, UPDATE_LIKES, DELETE_POST, ADD_POST, GET_POST } from '../actions/types';
 
 const initialState = {
     posts: [],
@@ -18,6 +18,10 @@ export default (state = initialState, action) => {
             return {...state, posts: state.posts.map((post) => post._id === action.payload.postId ? {...post, likes: action.payload.likes} : post), loading: false }
         case DELETE_POST:
             return {...state, posts: state.posts.filter((post) => post._id !== action.payload), loading: false };
+        case ADD_POST: // [...state.posts, action.payload] => this will append the post in the end, so we change it to => [action.payload, ...state.posts]
+            return {...state, posts: [action.payload, ...state.posts], loading: false };
+        case GET_POST:
+            return {...state, post: action.payload, loading: false };
         default:
             return state;
     }
